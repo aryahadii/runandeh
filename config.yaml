@@ -1,0 +1,6 @@
+debug: true
+addr: :8000
+
+rabbit-mq:
+  url: amqp://user:pass@localhost:5672
+  runs-queue: queries
