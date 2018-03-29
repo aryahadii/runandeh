@@ -1,0 +1,11 @@
+version: '3.1'
+
+services:
+  runandeh:
+    container_name: runandeh
+    image: registry.gitlab.com/arha/runandeh
+    entrypoint: /home/app/runandehd serve
+    volumes:
+      - ./config.yaml:/home/app/config.yaml
+      - /tmp/:/tmp/
+      - /var/run/docker.sock:/var/run/docker.sock

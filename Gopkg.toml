@@ -30,6 +30,10 @@
   version = "1.4.7"
 
 [[constraint]]
+  name = "github.com/fsouza/go-dockerclient"
+  version = "1.2.0"
+
+[[constraint]]
   name = "github.com/sirupsen/logrus"
   version = "1.0.5"
 
@@ -39,7 +43,15 @@
 
 [[constraint]]
   name = "github.com/spf13/viper"
-  version = "1.0.0"
+  version = "1.0.2"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/streadway/amqp"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/net"
 
 [prune]
   go-tests = true

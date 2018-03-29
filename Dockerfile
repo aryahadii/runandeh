@@ -1,11 +1,15 @@
-FROM alpine:3.5
+FROM ubuntu:16.04
 
-RUN apk --no-cache add --update ca-certificates
-RUN update-ca-certificates
+RUN apt-get update -y
 
-EXPOSE 8000
+# Install packages
+RUN apt-get install -y curl build-essential
 
-ADD runandehd /bin/runandehd
-WORKDIR /bin
+# Remove apt cache to make the image smaller
+RUN rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT ["/bin/runandehd"]
+# Add runandeh
+ADD runandehd /home/app/runandehd
+WORKDIR /home/app
+
+ENTRYPOINT [ "bash" ]
