@@ -15,13 +15,11 @@ var (
 	runsDelivery <-chan amqp.Delivery
 )
 
-// SubscribeToRunsQueue sets callback on deliveries
-func SubscribeToRunsQueue(callback func(amqp.Delivery)) {
-	go func() {
-		for run := range runsDelivery {
-			go callback(run)
-		}
-	}()
+// ListenToRunsQueue sets callback on deliveries
+func ListenToRunsQueue(callback func(amqp.Delivery)) {
+	for run := range runsDelivery {
+		go callback(run)
+	}
 }
 
 // InitMessageQueue creates connection, channel and queue

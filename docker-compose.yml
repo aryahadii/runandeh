@@ -4,8 +4,8 @@ services:
   runandeh:
     container_name: runandeh
     image: registry.gitlab.com/arha/runandeh
-    entrypoint: /home/app/runandehd serve
+    entrypoint: /runandehd serve
     volumes:
-      - ./config.yaml:/home/app/config.yaml
+      - ./config.yaml:/config.yaml
       - /tmp/:/tmp/
       - /var/run/docker.sock:/var/run/docker.sock

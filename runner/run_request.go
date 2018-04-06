@@ -14,4 +14,5 @@ const (
 	LangCpp = "cpp"
 
 	DBPostrges = "postgres"
+	DBMySQL    = "mysql"
 )

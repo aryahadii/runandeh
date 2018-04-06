@@ -51,7 +51,6 @@ func RunAppContainer(request *RunRequest) (*AppResponse, error) {
 		Mounts: []docker.HostMount{
 			tmpDirMount,
 		},
-		Links: []string{fmt.Sprintf("db-container-%s-%d", request.DB, request.ID)},
 	}
 
 	containerConfig := &docker.Config{
@@ -59,16 +58,30 @@ func RunAppContainer(request *RunRequest) (*AppResponse, error) {
 		Cmd:   []string{"/tmp/app"},
 	}
 
+	// Runandeh bridge config
+	endpoints := map[string]*docker.EndpointConfig{
+		configuration.GetInstance().GetString("docker.bridge-name"): &docker.EndpointConfig{
+			NetworkID: bridgeNet.ID,
+			Links: []string{
+				fmt.Sprintf("db-container-%s-%d:db", request.DB, request.ID),
+			},
+		},
+	}
+	containerNetwork := &docker.NetworkingConfig{
+		EndpointsConfig: endpoints,
+	}
+
 	containerOpts := docker.CreateContainerOptions{
-		Name:       containerID,
-		Config:     containerConfig,
-		HostConfig: hostConfig,
-		Context:    ctx,
+		Name:             containerID,
+		Config:           containerConfig,
+		HostConfig:       hostConfig,
+		NetworkingConfig: containerNetwork,
+		Context:          ctx,
 	}
 
 	container, err := cli.CreateContainer(containerOpts)
 	if err != nil {
-		return nil, fmt.Errorf("can't create app's container (%v)", err)
+		return nil, fmt.Errorf("can't create app's container [image:%s] (%v)", appImage, err)
 	}
 
 	// Start container
@@ -93,6 +106,7 @@ func RunAppContainer(request *RunRequest) (*AppResponse, error) {
 		Stderr:       true,
 	}
 	cli.Logs(logsOpts)
+
 	appResponse := &AppResponse{
 		outStream.String(),
 		errStream.String(),

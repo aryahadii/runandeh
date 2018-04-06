@@ -2,6 +2,7 @@ package runner
 
 import (
 	"os"
+	"time"
 
 	"github.com/aryahadii/runandeh/configuration"
 	docker "github.com/fsouza/go-dockerclient"
@@ -14,8 +15,11 @@ import (
 var (
 	ctx context.Context
 	cli *docker.Client
+
+	bridgeNet *docker.Network
 )
 
+// InitRunner creates docker client and pulls docker images
 func InitRunner() {
 	ctx = context.Background()
 
@@ -47,6 +51,10 @@ func InitRunner() {
 		}
 	}
 
+	if bridgeNet, err = createDockerNetwork(); err != nil {
+		logrus.WithError(err).Fatal("can't create bridge net")
+	}
+
 	logrus.Info("runner initialized")
 }
 
@@ -56,6 +64,9 @@ func Run(request *RunRequest) {
 		logrus.WithField("ID", request.ID).WithError(err).Error("can't run db")
 		return
 	}
+
+	// TODO: Implement better way to postpone app container's startup
+	time.Sleep(5 * time.Second)
 
 	response, err := RunAppContainer(request)
 	if err != nil {
@@ -77,4 +88,20 @@ func RemoveContainers() {
 			Context:       ctx,
 		})
 	}
+}
+
+func createDockerNetwork() (*docker.Network, error) {
+	// Search through networks
+	nets, _ := cli.ListNetworks()
+	for _, net := range nets {
+		if net.Name == configuration.GetInstance().GetString("docker.bridge-name") {
+			return &net, nil
+		}
+	}
+
+	// Create new network
+	netOpts := docker.CreateNetworkOptions{
+		Name: configuration.GetInstance().GetString("docker.bridge-name"),
+	}
+	return cli.CreateNetwork(netOpts)
 }

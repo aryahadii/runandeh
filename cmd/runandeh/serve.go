@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/sirupsen/logrus"
+	"github.com/streadway/amqp"
 
+	"github.com/aryahadii/runandeh/mq"
 	"github.com/aryahadii/runandeh/runner"
 	"github.com/spf13/cobra"
 )
@@ -27,30 +30,19 @@ func serve(cmd *cobra.Command, args []string) {
 	logVersion()
 
 	listenSignals()
-	defer runner.RemoveContainers()
-
-	// mq.InitMessageQueue()
-	// defer mq.Close()
 
 	runner.InitRunner()
-	reqTable := []*runner.RunRequest{
-		&runner.RunRequest{
-			ID:       0,
-			Payload:  nil,
-			CodeLang: runner.LangCpp,
-			AppCode: `#include <iostream>
-			int main() {
-				std::cout << "SHIT" << std::endl;
-				return 0;
-			}`,
-			DB:                 runner.DBPostrges,
-			DBValidatorQueries: nil,
-		},
-	}
 
-	for _, req := range reqTable {
-		runner.Run(req)
-	}
+	mq.InitMessageQueue()
+	mq.ListenToRunsQueue(func(request amqp.Delivery) {
+		runner.Run(createRunRequest(request))
+	})
+}
+
+func createRunRequest(request amqp.Delivery) *runner.RunRequest {
+	runRequest := &runner.RunRequest{}
+	json.Unmarshal(request.Body, runRequest)
+	return runRequest
 }
 
 func listenSignals() {

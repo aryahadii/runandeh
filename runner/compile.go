@@ -45,7 +45,16 @@ func getCompiledCppBinary(request *RunRequest) (string, error) {
 	ioutil.WriteFile(sourceFilename, []byte(request.AppCode), os.ModePerm)
 
 	// Compile
-	compiler := exec.Command("g++", "-o", baseFilename, sourceFilename)
+	compileArgs := []string{
+		"-o",
+		baseFilename,
+		sourceFilename,
+		"-I/usr/local/mysql/include",
+		"-L/usr/local/mysql/lib",
+		"-std=c++11",
+		"-lmysqlclient",
+	}
+	compiler := exec.Command("g++", compileArgs...)
 	gccOutput, err := compiler.CombinedOutput()
 	if err != nil {
 		if _, ok := err.(*exec.ExitError); ok {
