@@ -8,10 +8,13 @@ import (
 	"time"
 )
 
+// CompileError is an error type that raises during compile
 type CompileError interface {
 	error
 }
 
+// CppCompileError is an error that implements CompileError and contains
+// output of gcc
 type CppCompileError struct {
 	gccOut string
 }
@@ -42,7 +45,7 @@ func getCompiledCppBinary(request *RunRequest) (string, error) {
 
 	// Write source code to file
 	sourceFilename := baseFilename + ".cpp"
-	ioutil.WriteFile(sourceFilename, []byte(request.AppCode), os.ModePerm)
+	ioutil.WriteFile(sourceFilename, []byte(request.Code), os.ModePerm)
 
 	// Compile
 	compileArgs := []string{

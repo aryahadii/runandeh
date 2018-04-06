@@ -16,8 +16,8 @@ var (
 func RunDBContainer(request *RunRequest) error {
 	// Get DB image's name
 	dbImage := ""
-	switch request.DB {
-	case DBPostrges:
+	switch request.DBMS {
+	case DBPostgres:
 		dbImage = configuration.GetInstance().GetString("docker.images.postgres")
 	case DBMySQL:
 		dbImage = configuration.GetInstance().GetString("docker.images.mysql")
@@ -25,7 +25,7 @@ func RunDBContainer(request *RunRequest) error {
 
 	// Create container
 
-	containerID := fmt.Sprintf("db-container-%s-%d", request.DB, request.ID)
+	containerID := fmt.Sprintf("db-container-%s-%d", request.DBMS, request.ID)
 
 	containerConfig := &docker.Config{
 		Image: dbImage,

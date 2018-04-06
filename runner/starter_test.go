@@ -5,12 +5,11 @@ import "testing"
 func TestRun(t *testing.T) {
 	reqTable := []*RunRequest{
 		&RunRequest{
-			ID:                 0,
-			Payload:            nil,
-			CodeLang:           LangCpp,
-			AppCode:            "",
-			DB:                 DBPostrges,
-			DBValidatorQueries: nil,
+			ID:       0,
+			Payload:  nil,
+			CodeLang: LangCpp,
+			Code:     "",
+			DBMS:     DBMySQL,
 		},
 	}
 

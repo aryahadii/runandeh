@@ -2,17 +2,28 @@ package runner
 
 // RunRequest contains info of requested run
 type RunRequest struct {
-	ID                 int         `json:"id"`
-	Payload            interface{} `json:"payload"`
-	CodeLang           string      `json:"codeLang"`
-	AppCode            string      `json:"appCode"`
-	DB                 string      `json:"db"`
-	DBValidatorQueries []string    `json:"dbValidatorQueries"`
+	APIVersion int                 `json:"api"`
+	ID         int                 `json:"id"`
+	Payload    interface{}         `json:"payload"`
+	CodeLang   ProgrammingLanguage `json:"codeLang"`
+	Code       string              `json:"code"`
+	DBMS       DBMS                `json:"dbms"`
 }
 
-const (
-	LangCpp = "cpp"
+// ProgrammingLanguage is a type that specifies code's language
+type ProgrammingLanguage string
 
-	DBPostrges = "postgres"
-	DBMySQL    = "mysql"
+const (
+	// LangCpp specifies C++ programming language
+	LangCpp = ProgrammingLanguage("cpp")
+)
+
+// DBMS is a type that specifies a DBMS
+type DBMS string
+
+const (
+	// DBPostgres specifies PostgreSQL DBMS
+	DBPostgres = DBMS("postgres")
+	//DBMySQL specifies MySQL DBMS
+	DBMySQL = DBMS("mysql")
 )

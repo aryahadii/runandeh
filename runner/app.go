@@ -13,6 +13,7 @@ var (
 	appContainers []string
 )
 
+// AppResponse contains output of app
 type AppResponse struct {
 	Out string
 	Err string
@@ -63,7 +64,7 @@ func RunAppContainer(request *RunRequest) (*AppResponse, error) {
 		configuration.GetInstance().GetString("docker.bridge-name"): &docker.EndpointConfig{
 			NetworkID: bridgeNet.ID,
 			Links: []string{
-				fmt.Sprintf("db-container-%s-%d:db", request.DB, request.ID),
+				fmt.Sprintf("db-container-%s-%d:db", request.DBMS, request.ID),
 			},
 		},
 	}
