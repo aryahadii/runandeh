@@ -56,6 +56,7 @@ func getCompiledCppBinary(request *RunRequest) (string, error) {
 		"-L/usr/local/mysql/lib",
 		"-std=c++11",
 		"-lmysqlclient",
+		"-lsqlite3",
 	}
 	compiler := exec.Command("g++", compileArgs...)
 	gccOutput, err := compiler.CombinedOutput()

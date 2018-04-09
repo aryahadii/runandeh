@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	dbContainers []string
+	dbContainers = make(map[int]string)
 )
 
 // RunDBContainer create a new container for requested database
@@ -21,6 +21,8 @@ func RunDBContainer(request *RunRequest) error {
 		dbImage = configuration.GetInstance().GetString("docker.images.postgres")
 	case DBMySQL:
 		dbImage = configuration.GetInstance().GetString("docker.images.mysql")
+	case DBSqlite3:
+		return nil
 	}
 
 	// Create container
@@ -62,7 +64,7 @@ func RunDBContainer(request *RunRequest) error {
 	if err := cli.StartContainer(container.ID, &docker.HostConfig{}); err != nil {
 		return fmt.Errorf("can't start db container (%v)", err)
 	}
-	dbContainers = append(dbContainers, container.ID)
+	dbContainers[request.ID] = container.ID
 	logrus.WithField("container-id", container.ID).Info("DB container started")
 
 	return nil

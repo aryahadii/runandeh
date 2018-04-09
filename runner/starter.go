@@ -2,7 +2,6 @@ package runner
 
 import (
 	"os"
-	"time"
 
 	"github.com/aryahadii/runandeh/configuration"
 	docker "github.com/fsouza/go-dockerclient"
@@ -59,30 +58,57 @@ func InitRunner() {
 }
 
 // Run creates a container and runs requested code inside the container
-func Run(request *RunRequest) {
-	if err := RunDBContainer(request); err != nil {
-		logrus.WithField("ID", request.ID).WithError(err).Error("can't run db")
-		return
-	}
+func Run(request *RunRequest) (*AppResponse, error) {
+	defer RemoveContainersByID(request.ID)
 
-	// TODO: Implement better way to postpone app container's startup
-	time.Sleep(5 * time.Second)
+	if err := RunDBContainer(request); err != nil {
+		return &AppResponse{Error: err.Error()}, err
+	}
 
 	response, err := RunAppContainer(request)
 	if err != nil {
-		logrus.WithField("ID", request.ID).WithError(err).Errorf("can't get executable")
-		return
+		return &AppResponse{Error: err.Error()}, err
 	}
 	logrus.WithField("ID", request.ID).Debugf("response: %v", response)
+	return response, nil
+}
+
+// RemoveContainersByID remove db and app containers that belong to the `id`
+func RemoveContainersByID(id int) {
+	// Remove app container
+	cli.RemoveContainer(docker.RemoveContainerOptions{
+		ID:            appContainers[id],
+		RemoveVolumes: true,
+		Force:         true,
+		Context:       ctx,
+	})
+	delete(appContainers, id)
+
+	// Remove DB container
+	cli.RemoveContainer(docker.RemoveContainerOptions{
+		ID:            dbContainers[id],
+		RemoveVolumes: true,
+		Force:         true,
+		Context:       ctx,
+	})
+	delete(dbContainers, id)
 }
 
 // RemoveContainers remove all apps and dbs containers
 func RemoveContainers() {
-	containerIDs := append(appContainers, dbContainers...)
-	logrus.Infof("remove containers: %v", containerIDs)
-	for _, id := range containerIDs {
+	for _, containerID := range dbContainers {
+		logrus.Infof("remove container: %v", containerID)
 		cli.RemoveContainer(docker.RemoveContainerOptions{
-			ID:            id,
+			ID:            containerID,
+			RemoveVolumes: true,
+			Force:         true,
+			Context:       ctx,
+		})
+	}
+	for _, containerID := range appContainers {
+		logrus.Infof("remove container: %v", containerID)
+		cli.RemoveContainer(docker.RemoveContainerOptions{
+			ID:            containerID,
 			RemoveVolumes: true,
 			Force:         true,
 			Context:       ctx,

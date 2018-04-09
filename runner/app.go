@@ -10,14 +10,8 @@ import (
 )
 
 var (
-	appContainers []string
+	appContainers = make(map[int]string)
 )
-
-// AppResponse contains output of app
-type AppResponse struct {
-	Out string
-	Err string
-}
 
 // RunAppContainer creates a new container and executes app's binary inside
 // container. It returns app's output as a string and any other things
@@ -89,7 +83,7 @@ func RunAppContainer(request *RunRequest) (*AppResponse, error) {
 	if err := cli.StartContainer(container.ID, &docker.HostConfig{}); err != nil {
 		return nil, fmt.Errorf("can't start app's container (%v)", err)
 	}
-	appContainers = append(appContainers, container.ID)
+	appContainers[request.ID] = container.ID
 	logrus.WithField("container-id", container.ID).Info("app's container started")
 
 	returnCode, err := cli.WaitContainer(containerID)
@@ -109,9 +103,8 @@ func RunAppContainer(request *RunRequest) (*AppResponse, error) {
 	cli.Logs(logsOpts)
 
 	appResponse := &AppResponse{
-		outStream.String(),
-		errStream.String(),
+		StdOut: outStream.String(),
+		StdErr: errStream.String(),
 	}
-
 	return appResponse, nil
 }

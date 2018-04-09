@@ -9,8 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 
-	"github.com/aryahadii/runandeh/mq"
 	"github.com/aryahadii/runandeh/runner"
+	"github.com/aryahadii/runandeh/service"
 	"github.com/spf13/cobra"
 )
 
@@ -33,10 +33,12 @@ func serve(cmd *cobra.Command, args []string) {
 
 	runner.InitRunner()
 
-	mq.InitMessageQueue()
-	mq.ListenToRunsQueue(func(request amqp.Delivery) {
-		runner.Run(createRunRequest(request))
-	})
+	// mq.InitMessageQueue()
+	// mq.ListenToRunsQueue(func(request amqp.Delivery) {
+	// 	runner.Run(createRunRequest(request))
+	// })
+
+	service.StartAPI()
 }
 
 func createRunRequest(request amqp.Delivery) *runner.RunRequest {

@@ -24,6 +24,8 @@ type DBMS string
 const (
 	// DBPostgres specifies PostgreSQL DBMS
 	DBPostgres = DBMS("postgres")
-	//DBMySQL specifies MySQL DBMS
+	// DBMySQL specifies MySQL DBMS
 	DBMySQL = DBMS("mysql")
+	// DBSqlite3 specifies Sqlite3 DBMS
+	DBSqlite3 = DBMS("sqlite3")
 )
